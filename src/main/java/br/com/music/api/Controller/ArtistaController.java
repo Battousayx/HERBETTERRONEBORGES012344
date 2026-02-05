@@ -3,6 +3,7 @@ package br.com.music.api.Controller;
 import java.net.URI;
 import java.util.List;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -31,8 +32,10 @@ public class ArtistaController {
     @Operation(summary = "Listar todos os artistas", description = "Recupera uma lista de todos os artistas no sistema")
     @ApiResponse(responseCode = "200", description = "Lista de artistas recuperada com sucesso", 
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = ArtistaDto.class)))
-    public List<ArtistaDto> list() {
-        return service.list();
+    public List<ArtistaDto> list(
+            @Parameter(description = "Ordenação do campo artistaNome (asc ou desc)", required = false)
+            @RequestParam(value = "sortArtistaNome", required = false) String sortArtistaNome) {
+        return service.list(sortArtistaNome);
     }
 
     @GetMapping("/{id}")
@@ -44,8 +47,10 @@ public class ArtistaController {
     })
     public ResponseEntity<ArtistaDto> get(
             @Parameter(description = "ID do artista", required = true)
-            @PathVariable Long id) {
-        return service.get(id)
+            @PathVariable Long id,
+            @Parameter(description = "Ordenação do campo artistaNome (asc ou desc)", required = false)
+            @RequestParam(value = "sortArtistaNome", required = false) String sortArtistaNome) {
+        return service.get(id, sortArtistaNome)
                 .map(a -> ResponseEntity.ok(a))
                 .orElse(ResponseEntity.notFound().build());
     }

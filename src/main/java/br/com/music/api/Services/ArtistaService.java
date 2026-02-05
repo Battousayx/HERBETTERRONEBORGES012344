@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +22,17 @@ public class ArtistaService {
         this.mapper = mapper;
     }
 
-    public List<ArtistaDto> list() {
+    public List<ArtistaDto> list(String sortArtistaNome) {
+        if (sortArtistaNome != null && !sortArtistaNome.trim().isEmpty()) {
+            Sort sort = sortArtistaNome.equalsIgnoreCase("asc") 
+                ? Sort.by(Sort.Direction.ASC, "nome")
+                : Sort.by(Sort.Direction.DESC, "nome");
+            return repository.findAll(sort).stream().map(mapper::toDto).collect(Collectors.toList());
+        }
         return repository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
     }
 
-    public Optional<ArtistaDto> get(Long id) {
+    public Optional<ArtistaDto> get(Long id, String sortArtistaNome) {
         return repository.findById(id).map(mapper::toDto);
     }
 
