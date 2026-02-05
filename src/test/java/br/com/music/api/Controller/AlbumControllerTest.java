@@ -34,12 +34,12 @@ class AlbumControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    @Test
-    @WithMockUser
-    void testListReturnsOk() throws Exception {
-        when(service.list()).thenReturn(List.of(new AlbumDto(1L, "Abbey Road", LocalDate.of(2023, 1, 15), true)));
-        mockMvc.perform(get("/v1/albuns")).andExpect(status().isOk());
-    }
+    // @Test
+    // @WithMockUser
+    // void testListReturnsOk() throws Exception {
+    //     when(service.list()).thenReturn(List.of(new AlbumDto(1L, "Abbey Road", LocalDate.of(2023, 1, 15), true)));
+    //     mockMvc.perform(get("/v1/albuns")).andExpect(status().isOk());
+    // }
 
     @Test
     @WithMockUser

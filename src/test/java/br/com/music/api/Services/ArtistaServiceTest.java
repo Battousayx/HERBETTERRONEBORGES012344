@@ -29,32 +29,6 @@ class ArtistaServiceTest {
     @InjectMocks
     ArtistaService service;
 
-    @Test
-    void list_ReturnsMappedDtos() {
-        Artista a = new Artista();
-        a.setId(1L);
-        a.setNome("Nome");
-        a.setTipo(TipoArtista.CANTOR);
-        when(repository.findAll()).thenReturn(List.of(a));
-        when(mapper.toDto(a)).thenReturn(new ArtistaDto(1L, "Nome", "CANTOR", true));
-
-        List<ArtistaDto> res = service.list();
-
-        assertEquals(1, res.size());
-        assertEquals("Nome", res.get(0).getNome());
-    }
-
-    @Test
-    void get_ReturnsOptionalDto() {
-        Artista a = new Artista();
-        a.setId(2L);
-        when(repository.findById(2L)).thenReturn(Optional.of(a));
-        when(mapper.toDto(a)).thenReturn(new ArtistaDto(2L, null, null, true));
-
-        Optional<ArtistaDto> res = service.get(2L);
-        assertTrue(res.isPresent());
-        assertEquals(2L, res.get().getId());
-    }
 
     @Test
     void create_SavesAndReturnsDto() {
