@@ -3,6 +3,8 @@ package br.com.music.api.Controller;
 import java.net.URI;
 import java.util.List;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -13,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springdoc.core.annotations.ParameterObject;
 import br.com.music.api.Controller.dto.AlbumDto;
 import br.com.music.api.Services.AlbumService;
 
@@ -28,11 +31,12 @@ public class AlbumController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os álbuns", description = "Recupera uma lista de todos os álbuns no sistema")
+    @Operation(summary = "Listar todos os álbuns", description = "Recupera uma lista paginada de todos os álbuns no sistema")
     @ApiResponse(responseCode = "200", description = "Lista de álbuns recuperada com sucesso", 
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = AlbumDto.class)))
-    public List<AlbumDto> list() {
-        return service.list();
+    public Page<AlbumDto> list(
+            @ParameterObject Pageable pageable) {
+        return service.list(pageable);
     }
 
     @GetMapping("/{id}")
@@ -44,8 +48,9 @@ public class AlbumController {
     })
     public ResponseEntity<AlbumDto> get(
             @Parameter(description = "ID do álbum", required = true)
-            @PathVariable Long id) {
-        return service.get(id)
+            @PathVariable Long id,
+            @ParameterObject Pageable pageable) {
+        return service.get(id, pageable)
                 .map(album -> ResponseEntity.ok(album))
                 .orElse(ResponseEntity.notFound().build());
     }

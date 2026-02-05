@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +25,12 @@ public class AlbumService {
         this.mapper = mapper;
     }
 
-    public List<AlbumDto> list() {
-        return repository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
+    public Page<AlbumDto> list(Pageable pageable) {
+        Page<Album> albums = repository.findAll(pageable);
+        return albums.map(mapper::toDto);
     }
 
-    public Optional<AlbumDto> get(Long id) {
+    public Optional<AlbumDto> get(Long id, Pageable pageable) {
         return repository.findById(id).map(mapper::toDto);
     }
 
