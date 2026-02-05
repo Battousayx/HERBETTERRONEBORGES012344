@@ -1,110 +1,110 @@
-# JWT Authentication Refactoring - Summary
+# Autenticação JWT - Resumo
 
-## ✅ Implementation Complete
+## ✅ Implementação Completa
 
-The SecurityConfig.java has been successfully refactored to use **JWT (JSON Web Token) authentication** with a secure login system.
-
----
-
-## 📋 What Was Implemented
-
-### 1. **JWT Token Provider** (`JwtTokenProvider.java`)
-   - Generates JWT tokens with configurable expiration (24 hours default)
-   - Validates token signatures and expiration
-   - Extracts username from tokens
-   - Uses JJWT 0.12.3 library with HMAC-SHA256
-
-### 2. **JWT Authentication Filter** (`JwtAuthenticationFilter.java`)
-   - Intercepts HTTP requests
-   - Extracts JWT token from `Authorization: Bearer <token>` header
-   - Validates token and sets authenticated principal
-
-### 3. **User Management**
-   - **User Entity** (`Domain/User.java`): Stores username, password, email, roles
-   - **UserRepository** (`Repository/UserRepository.java`): JPA interface for user persistence
-   - **CustomUserDetailsService**: Loads users from database with role authentication
-
-### 4. **Authentication Endpoints** (`AuthController.java`)
-   - `POST /v1/auth/login` — Authenticate and get JWT token
-   - `POST /v1/auth/register` — Register new users
-
-### 5. **Login Page** (`templates/login.html`)
-   - Beautiful, responsive login UI
-   - Username/password authentication
-   - User registration support
-   - Displays JWT token after successful login
-   - Copy-to-clipboard functionality for tokens
-   - Direct link to Swagger UI with authorization instructions
-
-### 6. **Login Page Controller** (`LoginController.java`)
-   - Serves the login page at `/login`
-
-### 7. **Updated SecurityConfig** (`Config/SecurityConfig.java`)
-   - Disabled CSRF (appropriate for REST APIs)
-   - Configured stateless session management
-   - JWT filter integrated into filter chain
-   - Protected all endpoints except:
-     - Login/Register endpoints
-     - Swagger/OpenAPI documentation
-     - Login page
-
-### 8. **Database Migrations** (`db.migracao/002-create-users-table.xml`)
-   - Creates `users` table with proper schema
-   - Inserts default admin user (username: admin, password: admin)
-
-### 9. **Dependencies Added** (`pom.xml`)
-   - JJWT API, Implementation, and Jackson support (version 0.12.3)
-
-### 10. **Configuration** (`application.properties`)
-   - JWT secret key configuration
-   - JWT expiration time (24 hours)
-   - Environment variable override support
+O SecurityConfig.java foi criado para usar **autenticação JWT (JSON Web Token)** com um sistema de login seguro.
 
 ---
 
-## 🚀 Quick Start
+## 📋 O Que Foi Implementado
 
-### 1. Build & Run
+### 1. **Provedor de Token JWT** (`JwtTokenProvider.java`)
+   - Gera tokens JWT com expiração configurável (padrão 24 horas)
+   - Valida assinaturas e expiração de tokens
+   - Extrai nome de usuário dos tokens
+   - Usa biblioteca JJWT 0.12.3 com HMAC-SHA256
+
+### 2. **Filtro de Autenticação JWT** (`JwtAuthenticationFilter.java`)
+   - Intercepta requisições HTTP
+   - Extrai token JWT do cabeçalho `Authorization: Bearer <token>`
+   - Valida token e define o principal autenticado
+
+### 3. **Gerenciamento de Usuários**
+   - **Entidade User** (`Domain/User.java`): Armazena username, password, email, roles
+   - **UserRepository** (`Repository/UserRepository.java`): Interface JPA para persistência de usuários
+   - **CustomUserDetailsService**: Carrega usuários do banco de dados com autenticação de roles
+
+### 4. **Endpoints de Autenticação** (`AuthController.java`)
+   - `POST /v1/auth/login` — Autenticar e obter token JWT
+   - `POST /v1/auth/register` — Registrar novos usuários
+
+### 5. **Página de Login** (`templates/login.html`)
+   - UI de login bonita e responsiva
+   - Autenticação com username/password
+   - Suporte a registro de usuários
+   - Exibe token JWT após login bem-sucedido
+   - Funcionalidade de copiar para área de transferência para tokens
+   - Link direto para Swagger UI com instruções de autorização
+
+### 6. **Controller da Página de Login** (`LoginController.java`)
+   - Serve a página de login em `/login`
+
+### 7. **SecurityConfig Atualizado** (`Config/SecurityConfig.java`)
+   - CSRF desabilitado (apropriado para APIs REST)
+   - Gerenciamento de sessão stateless configurado
+   - Filtro JWT integrado na cadeia de filtros
+   - Protegidos todos os endpoints exceto:
+     - Endpoints de Login/Registro
+     - Documentação Swagger/OpenAPI
+     - Página de login
+
+### 8. **Migrações de Banco de Dados** (`db.migracao/002-create-users-table.xml`)
+   - Cria tabela `users` com esquema apropriado
+   - Insere usuário admin padrão (username: admin, password: admin)
+
+### 9. **Dependências Adicionadas** (`pom.xml`)
+   - JJWT API, Implementation e suporte Jackson (versão 0.12.3)
+
+### 10. **Configuração** (`application.properties`)
+   - Configuração de chave secreta JWT
+   - Tempo de expiração JWT (24 horas)
+   - Suporte a override de variável de ambiente
+
+---
+
+## 🚀 Início Rápido
+
+### 1. Build & Executar
 ```bash
 ./mvnw clean package
 ./mvnw spring-boot:run
 ```
 
 ### 2. Login
-- Open: `http://localhost:8080/api/login`
+- Abra: `http://localhost:8080/api/login`
 - Username: `admin`
 - Password: `admin123`
-- Copy the JWT token displayed
+- Copie o token JWT exibido
 
-### 3. Use Swagger with JWT
-1. Go to: `http://localhost:8080/api/v1/swagger-ui.html`
-2. Click "Authorize" button (top-right)
-3. Paste: `Bearer <your-token>` (with the word "Bearer" before the token)
-4. Click "Authorize" then "Close"
-5. Now test API endpoints with authentication
+### 3. Usar Swagger com JWT
+1. Acesse: `http://localhost:8080/api/v1/swagger-ui.html`
+2. Clique no botão "Authorize" (canto superior direito)
+3. Cole: `Bearer <seu-token>` (com a palavra "Bearer" antes do token)
+4. Clique em "Authorize" e depois em "Close"
+5. Agora teste os endpoints da API com autenticação
 
-### 4. Test Protected Endpoints
+### 4. Testar Endpoints Protegidos
 ```bash
-curl -H "Authorization: Bearer <your-token>" \
+curl -H "Authorization: Bearer <seu-token>" \
   http://localhost:8080/api/v1/artistas
 ```
 
 ---
 
-## 🔒 Security Features
+## 🔒 Recursos de Segurança
 
-✅ **JWT Authentication** - Stateless, token-based auth  
-✅ **BCrypt Password Hashing** - Passwords encrypted with BCrypt  
-✅ **Configurable Expiration** - Default 24 hours, configurable  
-✅ **Role-Based Access Control** - Users can have multiple roles  
-✅ **No Session State** - Perfect for microservices and scalability  
-✅ **Token Signature Validation** - Prevents token tampering  
+✅ **Autenticação JWT** - Autenticação stateless baseada em token  
+✅ **Hashing de Senha BCrypt** - Senhas criptografadas com BCrypt  
+✅ **Expiração Configurável** - Padrão 24 horas, configurável  
+✅ **Controle de Acesso Baseado em Roles** - Usuários podem ter múltiplas roles  
+✅ **Sem Estado de Sessão** - Perfeito para microsserviços e escalabilidade  
+✅ **Validação de Assinatura de Token** - Previne adulteração de tokens  
 
 ---
 
-## 📁 Files Created/Modified
+## 📁 Arquivos 
 
-### Created Files:
+### Arquivos Criados:
 - `src/main/java/br/com/music/api/Domain/User.java`
 - `src/main/java/br/com/music/api/Repository/UserRepository.java`
 - `src/main/java/br/com/music/api/Config/JwtTokenProvider.java`
@@ -116,38 +116,38 @@ curl -H "Authorization: Bearer <your-token>" \
 - `src/main/java/br/com/music/api/Controller/dto/JwtAuthResponse.java`
 - `src/main/resources/templates/login.html`
 - `src/main/resources/db/changelog/db.migracao/002-create-users-table.xml`
-- `JWT_AUTHENTICATION_GUIDE.md` — Comprehensive documentation
+- `JWT_AUTHENTICATION_GUIDE.md` — Documentação abrangente
 
-### Modified Files:
-- `pom.xml` — Added JJWT dependencies
-- `src/main/java/br/com/music/api/Config/SecurityConfig.java` — Refactored for JWT
-- `src/main/resources/application.properties` — Added JWT configuration
-- `src/main/resources/db/changelog/db.master.xml` — Added migration reference
+### Arquivos Modificados
+- `pom.xml` — Dependências JJWT
+- `src/main/java/br/com/music/api/Config/SecurityConfig.java` — Codificado para uso do JWT
+- `src/main/resources/application.properties` — Adicionada configuração JWT
+- `src/main/resources/db/changelog/db.master.xml` — Adicionada referência de migração
 
 ---
 
-## 🔑 Default Credentials
+## 🔑 Credenciais Padrão
 
-After running the application:
+Após executar a aplicação:
 - **Username**: `admin`
 - **Password**: `admin123`
 
-⚠️ **Important**: Change these credentials in production!
+⚠️ **Importante**: Altere estas credenciais em produção!
 
 ---
 
-## 📖 Additional Documentation
+## 📖 Documentação Adicional
 
-See `JWT_AUTHENTICATION_GUIDE.md` for:
-- Complete authentication flow diagram
-- cURL testing examples
-- Troubleshooting guide
-- Production checklist
-- Architecture overview
+Veja `JWT_AUTHENTICATION_GUIDE.md` para:
+- Diagrama completo do fluxo de autenticação
+- Exemplos de teste com cURL
+- Guia de solução de problemas
+- Checklist de produção
+- Visão geral da arquitetura
 
 ---
 
-## ⚡ Next Steps
+## ⚡ Próximos Passos
 
 1. **Test the Login Page**: Open `http://localhost:8080/api/login`
 2. **Get a Token**: Login with admin/admin
@@ -171,20 +171,20 @@ See `JWT_AUTHENTICATION_GUIDE.md` for:
 
 ---
 
-## 🔄 Architecture Flow
+## 🔄 Fluxo de Arquitetura
 
 ```
-User Login → AuthController → CustomUserDetailsService → Database
+Login do Usuário → AuthController → CustomUserDetailsService → Banco de Dados
             ↓
-        Generate JWT Token (JwtTokenProvider)
+        Gerar Token JWT (JwtTokenProvider)
             ↓
-User Request with Token → JwtAuthenticationFilter → Validate & Extract Username
+Requisição do Usuário com Token → JwtAuthenticationFilter → Validar & Extrair Username
             ↓
-        Check Token Validity & Set SecurityContext
+        Verificar Validade do Token & Definir SecurityContext
             ↓
-Access Protected REST Endpoints (Swagger or API)
+Acessar Endpoints REST Protegidos (Swagger ou API)
 ```
 
 ---
 
-Ready to use! For detailed documentation, see `JWT_AUTHENTICATION_GUIDE.md`
+Pronto para usar! Para documentação detalhada, veja `JWT_AUTHENTICATION_GUIDE.md`

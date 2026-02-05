@@ -1,29 +1,20 @@
-# JWT Authentication Setup - Music API
+# Guia de Autenticação JWT - Music API
 
-## Overview
-The Music API has been refactored to use **JWT (JSON Web Token) authentication** instead of HTTP Basic Auth. This document explains the new authentication flow and how to test it.
+## Visão Geral
+A Music API foi criada para usar **autenticação JWT (JSON Web Token)** ao invés de HTTP Basic Auth. Este documento explica o funnciona fluxo de autenticação e como testá-lo.
+
+---
+- **Autenticação baseada em Token JWT**
+- Endpoint de login para obter tokens
+- Endpoints da API protegidos que requerem tokens JWT válidos
+- Swagger UI acessível com ou sem tokens
+- Usuário admin padrão criado automaticamente
 
 ---
 
-## What Has Changed
+## Esquema do Banco de Dados
 
-### Before (Old Configuration)
-- HTTP Basic Authentication (username:password in Base64)
-- All `/v1/**` endpoints were public
-- No token-based authentication
-
-### After (New Configuration)
-- **JWT Token-based Authentication**
-- Login endpoint to obtain tokens
-- Protected API endpoints requiring valid JWT tokens
-- Swagger UI accessible with or without tokens
-- Default admin user created automatically
-
----
-
-## Database Schema
-
-### Users Table
+### Tabela Users
 ```sql
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
@@ -35,16 +26,16 @@ CREATE TABLE users (
 );
 ```
 
-**Default Admin User:**
+**Usuário Admin Padrão:**
 - Username: `admin`
 - Password: `admin123`
 - Role: `ADMIN`
 
 ---
 
-## Authentication Flow
+## Fluxo de Autenticação
 
-### 1. Login (Get JWT Token)
+### 1. Login (Obter Token JWT)
 ```
 POST /api/v1/auth/login
 Content-Type: application/json
@@ -54,7 +45,7 @@ Content-Type: application/json
   "password": "admin"
 }
 
-Response (HTTP 200):
+Resposta (HTTP 200):
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "tokenType": "Bearer",
@@ -62,134 +53,134 @@ Response (HTTP 200):
 }
 ```
 
-### 2. Use Token to Access Protected Endpoints
-Include the token in the `Authorization` header:
+### 2. Usar Token para Acessar Endpoints Protegidos
+Inclua o token no cabeçalho `Authorization`:
 ```
 GET /api/v1/artistas
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-### 3. Token Validation
-- Tokens expire after **24 hours** (configurable via `jwt.expiration`)
-- Invalid/expired tokens return **401 Unauthorized**
+### 3. Validação de Token
+- Tokens expiram após **24 horas** (configurável via `jwt.expiration`)
+- Tokens inválidos/expirados retornam **401 Unauthorized**
 
 ---
 
-## Quick Start
+## Início Rápido
 
-### Step 1: Build & Run the Application
+### Passo 1: Build & Executar a Aplicação
 ```bash
 ./mvnw clean package
 ./mvnw spring-boot:run
 ```
 
-The application will:
-1. Create the `users` table (Liquibase migration)
-2. Insert the default admin user
-3. Start the Spring Boot server on port 8080
+A aplicação irá:
+1. Criar a tabela `users` (migração Liquibase)
+2. Inserir o usuário admin padrão
+3. Iniciar o servidor Spring Boot na porta 8080
 
-### Step 2: Access Login Page
-Open in your browser:
+### Passo 2: Acessar a Página de Login
+Abra no seu navegador:
 ```
 http://localhost:8080/api/login
 ```
 
-### Step 3: Login
-1. Enter username: `admin`
-2. Enter password: `admin123`
-3. Click "Login"
-4. Copy the JWT token displayed
+### Passo 3: Fazer Login
+1. Digite o username: `admin`
+2. Digite a password: `admin123`
+3. Clique em "Entrar"
+4. Copie o token JWT exibido
 
-### Step 4: Access Swagger UI with Token
-1. Go to: `http://localhost:8080/api/v1/swagger-ui.html`
-2. Click the "Authorize" button (top-right)
-3. Paste your token in format: `Bearer <your-token>`
-4. Click "Authorize" and then "Close"
-5. Now you can test all API endpoints in Swagger
+### Passo 4: Acessar Swagger UI com Token
+1. Acesse: `http://localhost:8080/api/v1/swagger-ui.html`
+2. Clique no botão "Authorize" (canto superior direito)
+3. Cole seu token no formato: `Bearer <seu-token>`
+4. Clique em "Authorize" e depois em "Close"
+5. Agora você pode testar todos os endpoints da API no Swagger
 
 ---
 
-## Public Endpoints (No Authentication Required)
+## Endpoints Públicos (Sem Autenticação Necessária)
 
-- `/login` — Login page
-- `/v1/auth/login` — Get JWT token
-- `/v1/auth/register` — Register new user
+- `/login` — Página de login
+- `/v1/auth/login` — Obter token JWT
+- `/v1/auth/register` — Registrar novo usuário
 - `/swagger-ui/**` — Swagger UI
-- `/v3/api-docs/**` — OpenAPI documentation
-- `/swagger-resources/**` — Swagger resources
-- `/webjars/**` — Web JAR resources
+- `/v3/api-docs/**` — Documentação OpenAPI
+- `/swagger-resources/**` — Recursos Swagger
+- `/webjars/**` — Recursos Web JAR
 
 ---
 
-## Protected Endpoints (Require JWT Token)
+## Endpoints Protegidos (Requerem Token JWT)
 
-All other endpoints under `/v1/**` require a valid JWT token in the `Authorization` header.
+Todos os outros endpoints sob `/v1/**` requerem um token JWT válido no cabeçalho `Authorization`.
 
-Example:
+Exemplo:
 ```bash
-curl -H "Authorization: Bearer <your-token>" \
+curl -H "Authorization: Bearer <seu-token>" \
   http://localhost:8080/api/v1/artistas
 ```
 
 ---
 
-## Configuration Properties
+## Propriedades de Configuração
 
-Located in `src/main/resources/application.properties`:
+Localizadas em `src/main/resources/application.properties`:
 
 ```properties
-# JWT Configuration
+# Configuração JWT
 jwt.secret=mySecretKeyForJWTTokenGenerationAndValidationPurposesOnly12345678
-jwt.expiration=86400000  # 24 hours in milliseconds
+jwt.expiration=86400000  # 24 horas em milissegundos
 
-# Environment variables (override defaults):
-# JWT_SECRET=your-secret-key
+# Variáveis de ambiente (sobrescrevem os padrões):
+# JWT_SECRET=sua-chave-secreta
 # JWT_EXPIRATION=86400000
 ```
 
-**Important for Production:**
-- Change `jwt.secret` to a long, random string
-- Use environment variables to set secrets securely
-- Increase `jwt.expiration` if needed (in milliseconds)
+**Importante para Produção:**
+- Altere `jwt.secret` para uma string longa e aleatória
+- Use variáveis de ambiente para definir secrets de forma segura
+- Aumente `jwt.expiration` se necessário (em milissegundos)
 
 ---
 
-## New Classes & Components
+## Classes & Componentes
 
-### Authentication Components
-| File | Purpose |
+### Componentes de Autenticação
+| Arquivo | Propósito |
 |------|---------|
-| `JwtTokenProvider.java` | Generate and validate JWT tokens |
-| `JwtAuthenticationFilter.java` | Extract and validate tokens from requests |
-| `CustomUserDetailsService.java` | Load user details from database |
-| `SecurityConfig.java` | Spring Security configuration with JWT |
+| `JwtTokenProvider.java` | Gerar e validar tokens JWT |
+| `JwtAuthenticationFilter.java` | Extrair e validar tokens das requisições |
+| `CustomUserDetailsService.java` | Carregar detalhes do usuário do banco de dados |
+| `SecurityConfig.java` | Configuração do Spring Security com JWT |
 
 ### Controllers
-| File | Purpose |
+| Arquivo | Propósito |
 |------|---------|
-| `AuthController.java` | Login and register endpoints |
-| `LoginController.java` | Serves the login page |
+| `AuthController.java` | Endpoints de login e registro |
+| `LoginController.java` | Serve a página de login |
 
 ### Domain & Repository
-| File | Purpose |
+| Arquivo | Propósito |
 |------|---------|
-| `Domain/User.java` | User entity |
-| `Repository/UserRepository.java` | User persistence |
+| `Domain/User.java` | Entidade User |
+| `Repository/UserRepository.java` | Persistência de usuários |
 
 ### DTOs
-| File | Purpose |
+| Arquivo | Propósito |
 |------|---------|
-| `Controller/dto/LoginRequest.java` | Login request payload |
-| `Controller/dto/JwtAuthResponse.java` | JWT response payload |
+| `Controller/dto/LoginRequest.java` | Payload de requisição de login |
+| `Controller/dto/JwtAuthResponse.java` | Payload de resposta JWT |
 
-### Database Migrations
-| File | Purpose |
+### Migrações de Banco de Dados
+| Arquivo | Propósito |
 |------|---------|
-| `db.migracao/002-create-users-table.xml` | Create users table and default admin user |
+| `db.migracao/002-create-users-table.xml` | Criar tabela users e usuário admin padrão |
 
 ---
 
-## Testing with cURL
+## Testando com cURL
 
 ### Login
 ```bash
@@ -198,70 +189,70 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -d '{"username":"admin","password":"admin123"}'
 ```
 
-### Register New User
+### Registrar Novo Usuário
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"newuser","password":"password123"}'
+  -d '{"username":"novousuario","password":"senha123"}'
 ```
 
-### Access Protected Endpoint with Token
+### Acessar Endpoint Protegido com Token
 ```bash
-# First, get the token
+# Primeiro, obtenha o token
 TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}' \
   | jq -r '.accessToken')
 
-# Use the token
+# Use o token
 curl -H "Authorization: Bearer $TOKEN" \
   http://localhost:8080/api/v1/artistas
 ```
 
 ---
 
-## Troubleshooting
+## Solução de Problemas
 
-### "Invalid credentials" on login
-- Check username and password in the database
-- Ensure the users table was created by Liquibase
-- Verify the BCrypt hash matches the password
+### "Invalid credentials" no login
+- Verifique username e password no banco de dados
+- Certifique-se que a tabela users foi criada pelo Liquibase
+- Verifique se o hash BCrypt corresponde à senha
 
-### "Unable to generate JWT token" errors
-- Check that `jwt.secret` property is set
-- Verify java version is 11+
-- Check logs for JJWT library errors
+### Erros "Unable to generate JWT token"
+- Verifique se a propriedade `jwt.secret` está definida
+- Verifique se a versão do Java é 11+
+- Verifique os logs para erros da biblioteca JJWT
 
-### Token not working in Swagger UI
-- Ensure token format is: `Bearer <token>` (with space)
-- Check that token hasn't expired (default 24 hours)
-- Try refreshing page and authorizing again
+### Token não funciona no Swagger UI
+- Certifique-se que o formato do token é: `Bearer <token>` (com espaço)
+- Verifique se o token não expirou (padrão 24 horas)
+- Tente atualizar a página e autorizar novamente
 
-### Users table not created
-- Check Liquibase logs during startup
-- Verify PostgreSQL is running and accessible
-- Review `src/main/resources/db/changelog/db.migracao/002-create-users-table.xml`
-
----
-
-## Production Checklist
-
-- [ ] Change `jwt.secret` to a strong random key
-- [ ] Update `jwt.expiration` as needed
-- [ ] Use environment variables to manage secrets
-- [ ] Enable HTTPS only
-- [ ] Add rate limiting to login endpoint
-- [ ] Implement refresh tokens
-- [ ] Add token expiration refresh mechanism
-- [ ] Setup audit logging for authentication events
-- [ ] Configure CORS if calling from different domain
-- [ ] Add user account lockout after failed attempts
+### Tabela users não foi criada
+- Verifique os logs do Liquibase durante a inicialização
+- Verifique se o PostgreSQL está rodando e acessível
+- Revise `src/main/resources/db/changelog/db.migracao/002-create-users-table.xml`
 
 ---
 
-## Dependencies Added
+## Checklist de Produção
 
-The following JWT library was added to `pom.xml`:
+- [ ] Alterar `jwt.secret` para uma chave aleatória forte
+- [ ] Atualizar `jwt.expiration` conforme necessário
+- [ ] Usar variáveis de ambiente para gerenciar secrets
+- [ ] Habilitar HTTPS apenas
+- [ ] Adicionar rate limiting ao endpoint de login
+- [ ] Implementar refresh tokens
+- [ ] Adicionar mecanismo de renovação de expiração de token
+- [ ] Configurar log de auditoria para eventos de autenticação
+- [ ] Configurar CORS se chamando de domínio diferente
+- [ ] Adicionar bloqueio de conta após tentativas falhadas
+
+---
+
+## Dependências Adicionadas
+
+A seguinte biblioteca JWT foi adicionada ao `pom.xml`:
 
 ```xml
 <!-- JWT -->
@@ -274,7 +265,7 @@ The following JWT library was added to `pom.xml`:
 
 ---
 
-## Architecture Diagram
+## Architecture Diagram - Diferenças entre Basic Atuth entre JWT
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -305,10 +296,10 @@ The following JWT library was added to `pom.xml`:
 
 ---
 
-## Support
+## Suporte
 
-For issues or questions, review:
-1. Application logs: `logs/application.log`
-2. SecurityConfig for endpoint permissions
-3. Database migration files in `db.migracao/`
-4. JJWT library documentation: https://github.com/jwtk/jjwt
+Para problemas ou questões, revise:
+1. Logs da aplicação: `logs/application.log`
+2. SecurityConfig para permissões de endpoint
+3. Arquivos de migração do banco em `db.migracao/`
+4. Documentação da biblioteca JJWT: https://github.com/jwtk/jjwt

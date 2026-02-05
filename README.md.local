@@ -1,0 +1,84 @@
+# Music API - Guia de Dependencias, Arquitetura e Padroes
+
+## Dependencias Necessarias (instalacao local)
+
+### Essenciais
+- Java 21 (JDK)
+- Maven (opcional, o projeto usa Maven Wrapper via `./mvnw`)
+- Git
+
+### Infra local (recomendado via Docker)
+- Docker Engine
+- Docker Compose (plugin `docker compose`)
+
+### Servicos externos exigidos em runtime
+- PostgreSQL (porta padrao 5432)
+- Redis (porta padrao 6379)
+- MinIO (porta padrao 9000/9001)
+
+> Observacao: o projeto inclui um `docker-compose.yml` em `src/main/resources/services/docker` para subir Postgres, Redis e MinIO localmente.
+
+## Arquitetura do Projeto
+
+O projeto segue uma arquitetura em camadas com separacao clara de responsabilidades:
+
+- **Controller**: endpoints REST e mapeamento de request/response.
+- **Services**: regras de negocio e fronteiras transacionais.
+- **Repository**: acesso a dados via Spring Data JPA.
+- **Domain**: entidades JPA e enums do dominio.
+- **Config**: configuracoes de seguranca, OpenAPI e integracoes (ex.: MinIO).
+
+Estrutura principal:
+
+- `src/main/java/br/com/music/api/Controller`
+- `src/main/java/br/com/music/api/Services`
+- `src/main/java/br/com/music/api/Repository`
+- `src/main/java/br/com/music/api/Domain`
+- `src/main/java/br/com/music/api/Config`
+
+## Metodologia de Desenvolvimento
+
+- **API REST**: endpoints HTTP com semantica REST.
+- **Separacao de camadas**: Controllers delegam para Services; Services interagem com Repositories.
+- **Configuracao via properties**: credenciais e endpoints configurados em `application.properties`.
+- **Evolucao de banco via migration**: Liquibase gerencia alteracoes de schema.
+
+## Padroes de Projeto Utilizados
+
+- **Repository Pattern**: interfaces JPA para persistencia (Spring Data).
+- **Service Layer**: encapsula regras de negocio e transacoes.
+- **DTO + Mapper (quando aplicavel)**: isolamento de entidades do dominio nas respostas.
+- **Dependency Injection**: componentes gerenciados pelo Spring (`@Service`, `@Repository`, `@Configuration`).
+- **Configuration Pattern**: beans centralizados para clientes externos (ex.: MinIO).
+
+## Como Rodar (comandos)
+
+### Subir infraestrutura local (Docker)
+
+```bash
+docker compose -f src/main/resources/services/docker/docker-compose.yml up -d
+```
+
+### Rodar a aplicacao
+
+```bash
+./mvnw spring-boot:run
+```
+
+### Build (sem testes)
+
+```bash
+./mvnw -DskipTests package
+```
+
+### Testes
+
+```bash
+./mvnw test
+```
+
+## Observacoes Importantes
+
+- As migrations ficam em `src/main/resources/db/changelog`.
+- O bucket e as credenciais do MinIO sao configurados em `application.properties`.
+- O contexto base do servidor e `/api` (ver `application.properties`).

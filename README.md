@@ -1,0 +1,106 @@
+# Music API - Guia de Dependências, Arquitetura e Padrões
+
+## Dependências Necessárias (instalação local)
+
+### Essenciais
+- Java 21 (JDK)
+- Maven (opcional, o projeto usa Maven Wrapper via `./mvnw`)
+- Git
+
+### Infra local (recomendado via Docker)
+- Docker Engine
+- Docker Compose (plugin `docker compose`)
+
+### Serviços externos exigidos em runtime
+- PostgreSQL (porta padrão 5432)
+- Redis (porta padrão 6379)
+- MinIO (porta padrão 9000/9001)
+
+> Observação: o projeto inclui um `docker-compose.yml` em `src/main/resources/services/docker` para subir Postgres, Redis e MinIO localmente.
+
+## Arquitetura do Projeto
+
+O projeto segue uma arquitetura em camadas com separação clara de responsabilidades:
+
+- **Controller**: endpoints REST e mapeamento de request/response.
+- **Services**: regras de negócio e fronteiras transacionais.
+- **Repository**: acesso a dados via Spring Data JPA.
+- **Domain**: entidades JPA e enums do domínio.
+- **Config**: configurações de segurança, OpenAPI e integrações (ex.: MinIO).
+
+Estrutura principal:
+
+- `src/main/java/br/com/music/api/Controller`
+- `src/main/java/br/com/music/api/Services`
+- `src/main/java/br/com/music/api/Repository`
+- `src/main/java/br/com/music/api/Domain`
+- `src/main/java/br/com/music/api/Config`
+
+## Metodologia de Desenvolvimento
+
+- **API REST**: endpoints HTTP com semântica REST.
+- **Separação de camadas**: Controllers delegam para Services; Services interagem com Repositories.
+- **Configuração via properties**: credenciais e endpoints configurados em `application.properties`.
+- **Evolução de banco via migration**: Liquibase gerencia alterações de schema.
+
+## Padrões de Projeto Utilizados
+
+- **Repository Pattern**: interfaces JPA para persistência (Spring Data).
+- **Service Layer**: encapsula regras de negócio e transações.
+- **DTO + Mapper (quando aplicável)**: isolamento de entidades do domínio nas respostas.
+- **Dependency Injection**: componentes gerenciados pelo Spring (`@Service`, `@Repository`, `@Configuration`).
+- **Configuration Pattern**: beans centralizados para clientes externos (ex.: MinIO).
+
+## Autenticação e Segurança
+
+O projeto implementa **autenticação JWT (JSON Web Token)** para proteger endpoints da API.
+
+### Features de Segurança
+- ✅ Autenticação baseada em JWT com expiração configurável (24 horas por padrão)
+- ✅ Hashing de senhas com BCrypt
+- ✅ Controle de acesso baseado em roles
+- ✅ Página de login responsiva (em português)
+- ✅ Integração com Swagger UI para testes autenticados
+- ✅ Gerenciamento de usuários com registro e login
+
+### Documentação de Autenticação
+Para detalhes completos sobre a implementação de JWT, consulte:
+- **[JWT_AUTHENTICATION_GUIDE.md](JWT_AUTHENTICATION_GUIDE.md)** - Guia completo com fluxo de autenticação, testes com cURL, solução de problemas e checklist de produção
+- **[JWT_IMPLEMENTATION_SUMMARY.md](JWT_IMPLEMENTATION_SUMMARY.md)** - Resumo técnico da implementação com arquitetura e componentes utilizados
+
+### Acesso Rápido
+- **Página de Login**: `http://localhost:8080/api/login` (username: `admin`, password: `admin123`)
+- **Swagger UI**: `http://localhost:8080/api/swagger-ui.html`
+- **MinIO**: `http://localhost:9000` (access key: `admin`, secret key: `admin123`)
+
+## Como Rodar (comandos)
+
+### Subir infraestrutura local (Docker)
+
+```bash
+docker compose -f src/main/resources/services/docker/docker-compose.yml up -d
+```
+
+### Rodar a aplicação
+
+```bash
+./mvnw spring-boot:run
+```
+
+### Build (sem testes)
+
+```bash
+./mvnw -DskipTests package
+```
+
+### Testes
+
+```bash
+./mvnw test
+```
+
+## Observações Importantes
+
+- As migrations ficam em `src/main/resources/db/changelog`.
+- O bucket e as credenciais do MinIO são configurados em `application.properties`.
+- O contexto base do servidor é `/api` (ver `application.properties`).
