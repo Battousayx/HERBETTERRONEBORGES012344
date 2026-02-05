@@ -73,6 +73,30 @@ Para detalhes completos sobre a implementação de JWT, consulte:
 - **Swagger UI**: `http://localhost:8080/api/swagger-ui.html`
 - **MinIO**: `http://localhost:9000` (access key: `admin`, secret key: `admin123`)
 
+## Armazenamento de Arquivos (MinIO)
+
+O projeto utiliza **MinIO** como solução de armazenamento de objetos para gerenciar imagens de álbuns e outros arquivos.
+
+### Features de Armazenamento
+- ✅ Upload de imagens para MinIO
+- ✅ Download e visualização de imagens
+- ✅ Conversão para Base64
+- ✅ Integração com banco de dados (referências em `album_imagem`)
+- ✅ Suporte a múltiplas imagens por álbum
+
+### Documentação de MinIO
+Para detalhes completos sobre testes e uso do MinIO, consulte:
+- **[MINIO_TEST_GUIDE.md](MINIO_TEST_GUIDE.md)** - Guia completo de testes com MinIO, incluindo exemplos práticos de upload/download, integração com banco de dados, testes via cURL e troubleshooting
+
+### Configuração MinIO
+As configurações do MinIO estão em `application.properties`:
+```properties
+minio.access.key=admin
+minio.secret.key=admin123
+minio.url=http://localhost:9000
+minio.bucket.name=meu-bucket
+```
+
 ## Como Rodar (comandos)
 
 ### Subir infraestrutura local (Docker)
