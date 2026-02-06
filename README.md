@@ -1,36 +1,5 @@
 # Music API - Guia de Dependências, Arquitetura e Padrões
 
-## 🐳 Deploy em Produção (NOVO!)
-
-Para deploy em produção com Docker:
-
-**Documentação Completa:**
-- **[DOCKER_SUMMARY.md](DOCKER_SUMMARY.md)** - Resumo executivo da análise e arquivos criados
-- **[PRODUCTION_GUIDE.md](PRODUCTION_GUIDE.md)** - Guia completo de deploy em produção (50+ páginas)
-
-**Quick Start:**
-```bash
-# 1. Configurar ambiente
-cp .env.production .env
-nano .env  # Editar com valores reais
-
-# 2. Deploy completo
-./deploy-production.sh deploy
-
-# 3. Verificar
-./deploy-production.sh status
-./deploy-production.sh health
-```
-
-**Arquivos Criados:**
-- ✅ [Dockerfile](Dockerfile) - Multi-stage build Ubuntu (~300MB)
-- ✅ [docker-compose.production.yml](docker-compose.production.yml) - Stack completo (PostgreSQL + Redis + MinIO + API)
-- ✅ [.env.production](.env.production) - Template de configuração
-- ✅ [deploy-production.sh](deploy-production.sh) - Script de automação
-- ✅ [.dockerignore](.dockerignore) - Otimização de build
-
----
-
 ## Dependências Necessárias (instalação local)
 
 ### Essenciais
