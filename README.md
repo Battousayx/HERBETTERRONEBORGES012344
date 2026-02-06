@@ -223,3 +223,11 @@ MINIO_SECRET_KEY: admin123
 ```
 
 Para produção real, altere as senhas e credenciais diretamente no `docker-compose.yml`.
+
+
+### FUNCIONALIDADES NÃO DESENVOLVIDAS (Estes itens não foram priorizados para focar na arquitetura)
+```
+- Recuperação por links pré-assinados com expiração de 30 minutos.
+- Importar a lista para tabela interna (CRUD FOI CRIADO) Não ficou claro a dependência das Regionais
+- Rate limit: até 10 requisições por minuto por usuário.
+- Atributo alterado → inativar antigo e criar novo registro.
